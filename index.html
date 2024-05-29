@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>크롬 공룡게임</title>
+<style>
+    #game-area {
+        width: 600px;
+        height: 200px;
+        border: 1px solid black;
+        position: relative;
+        margin: auto;
+    }
+
+    #dino {
+        width: 30px;
+        height: 30px;
+        background-color: #666;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+
+    .obstacle {
+        width: 20px;
+        height: 20px;
+        background-color: #333;
+        position: absolute;
+        bottom: 0;
+    }
+</style>
+</head>
+<body>
+
+<div id="game-area">
+    <div id="dino"></div>
+</div>
+
+<script>
+   const dino = document.getElementById('dino');
+let dinoBottom = 0;
+let gravity = 4;
+let isJumping = false;
+let obstacleSpeed = 7;
+
+function jump() {
+    if (isJumping) return;
+    isJumping = true;
+    let jumpInterval = setInterval(function() {
+        if (dinoBottom >= 100) {
+            clearInterval(jumpInterval);
+            let fallInterval = setInterval(function() {
+                if (dinoBottom <= 0) {
+                    clearInterval(fallInterval);
+                    isJumping = false;
+                } else {
+                    dinoBottom -= gravity;
+                    dino.style.bottom = dinoBottom + 'px';
+                }
+            }, 13); // 여기를 20에서 10으로 변경하여 빠르게 변경했습니다.
+        } else {
+            dinoBottom += 30;
+            dino.style.bottom = dinoBottom + 'px';
+        }
+    }, 20);
+}
+
+document.addEventListener('keydown', function(event) {
+    if (event.code === 'Space') {
+        jump();
+    }
+});
+
+function createObstacle() {
+    let obstacleLeft = 600;
+    let randomHeight = Math.random() * 45 + 20;
+    const obstacle = document.createElement('div');
+    obstacle.classList.add('obstacle');
+    obstacle.style.left = obstacleLeft + 'px';
+    obstacle.style.height = randomHeight + 'px';
+    document.getElementById('game-area').appendChild(obstacle);
+
+    let moveObstacleInterval = setInterval(function() {
+        obstacleLeft -= obstacleSpeed;
+        obstacle.style.left = obstacleLeft + 'px';
+
+        if (obstacleLeft < -20) {
+            clearInterval(moveObstacleInterval);
+            document.getElementById('game-area').removeChild(obstacle);
+        }
+
+        if (obstacleLeft > 0 && obstacleLeft < 50 && dinoBottom < randomHeight + 20) {
+            alert('게임 오버!');
+            clearInterval(moveObstacleInterval);
+            window.location.reload();
+        }
+    }, 20);
+
+    setTimeout(createObstacle, Math.random() * 2000 + 1000);
+}
+
+createObstacle();
+
+</script>
+
+</body>
+</html>
